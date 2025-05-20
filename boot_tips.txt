@@ -1,0 +1,4 @@
+# PYTHON BELOW - works for 'mixed' text with escaped and non-escaped chars
+import html
+escaped_value = html.escape(value)
+# END python
