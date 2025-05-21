@@ -1,6 +1,6 @@
 import unittest
 
-from htmlnode import HTMLNode, LeafNode
+from htmlnode import HTMLNode, LeafNode, ParentNode
 
 class TestHTMLNode(unittest.TestCase):
     def test_props_to_html_basic(self):
@@ -11,7 +11,7 @@ class TestHTMLNode(unittest.TestCase):
             None,
             {"href": "https://example.com"}
         )
-        test_node = "href=\"https://example.com\""
+        test_node = " href=\"https://example.com\""
         self.assertEqual(node.props_to_html(), test_node)
     
     def test_props_to_html_props(self):
@@ -21,7 +21,7 @@ class TestHTMLNode(unittest.TestCase):
             None,
             {"href": "https://example.com", "target": "_blank"}
         )
-        test_node = "href=\"https://example.com\" target=\"_blank\""
+        test_node = " href=\"https://example.com\" target=\"_blank\""
         self.assertEqual(node.props_to_html(), test_node)
         
     def test_props_to_html_empty_dict(self):
@@ -52,7 +52,6 @@ class TestHTMLNode(unittest.TestCase):
         node = LeafNode(
             "a",
             "Follow the white rabbit",
-            None,
             {'href': 'https://www.thematrix.com'}
         )
         self.assertEqual(
@@ -60,3 +59,37 @@ class TestHTMLNode(unittest.TestCase):
             "<a href=\"https://www.thematrix.com\">Follow the white rabbit</a>"
         )
 
+    def test_to_html_with_children(self):
+        child_node = LeafNode("span", "child")
+        parent_node = ParentNode("div", [child_node])
+        self.assertEqual(parent_node.to_html(), "<div><span>child</span></div>")
+
+    def test_to_html_with_grandchildren(self):
+        grandchild_node = LeafNode("b", "grandchild")
+        child_node = ParentNode("span", [grandchild_node])
+        parent_node = ParentNode("div", [child_node])
+        self.assertEqual(
+            parent_node.to_html(),
+            "<div><span><b>grandchild</b></span></div>",
+        )
+
+    def test_to_html_with_mult_children(self):
+        child_with_children = ParentNode(
+            "p",
+            [
+                LeafNode("b", "Bold text"),
+                LeafNode(None, "Normal text"),
+                LeafNode("i", "italic text"),
+                LeafNode(None, "Normal text"),
+            ],
+        )
+        children = [
+            LeafNode("span", "child-span"),
+            LeafNode("p", "child-p"),
+            child_with_children
+        ]
+        parent_node = ParentNode("div", children)
+        self.assertEqual(
+            parent_node.to_html(),
+            "<div><span>child-span</span><p>child-p</p><p><b>Bold text</b>Normal text<i>italic text</i>Normal text</p></div>"
+        )
