@@ -1,6 +1,6 @@
 import unittest
 
-from textnode import TextNode, TextType
+from textnode import TextNode, TextType, text_node_to_html_node
 
 
 class TestTextNode(unittest.TestCase):
@@ -15,8 +15,8 @@ class TestTextNode(unittest.TestCase):
         self.assertNotEqual(node, node2)
     
     def test_non_eq2(self):
-        node = TextNode("This is a text node", TextType.NORMAL)
-        node2 = TextNode("This is a text node2", TextType.NORMAL)
+        node = TextNode("This is a text node", TextType.TEXT)
+        node2 = TextNode("This is a text node2", TextType.TEXT)
         self.assertNotEqual(node, node2)
 
     def test_url_none(self):
@@ -38,6 +38,50 @@ class TestTextNode(unittest.TestCase):
             "TextNode(some text node, link, www.google.com)",
             repr(node)
         )
+
+class TestTextNodeToHTMLNode(unittest.TestCase):
+    def test_text(self):
+        node = TextNode("This is a text node", TextType.TEXT)
+        html_node = text_node_to_html_node(node)
+        self.assertEqual(html_node.tag, None)
+        self.assertEqual(html_node.value, "This is a text node")
+
+    def test_image(self):
+        node = TextNode(
+            "image of two cats",
+            TextType.IMAGE,
+            "https://www.hartz.com/wp-content/uploads/2024/03/adopting-two-cats-at-once-1.jpg"
+        )
+        html_node = text_node_to_html_node(node)
+        self.assertEqual(html_node.tag, "img")
+        self.assertEqual(html_node.value, "")
+        self.assertEqual(html_node.props, {
+            "src": "https://www.hartz.com/wp-content/uploads/2024/03/adopting-two-cats-at-once-1.jpg",
+            "alt": "image of two cats"
+        })
+             
+    def test_link(self):
+        node = TextNode(
+            "this be anchor text",
+            TextType.LINK,
+            "www.boot.dev"
+        )
+        html_node = text_node_to_html_node(node)
+        self.assertEqual(html_node.tag, "a")
+        self.assertEqual(html_node.value, "this be anchor text")
+        self.assertEqual(html_node.children, None)
+        self.assertEqual(html_node.props, {"href": "www.boot.dev"})
+
+    def test_italic(self):
+        node = TextNode(
+            "this is italic text",
+            TextType.ITALIC
+        )
+        html_node = text_node_to_html_node(node)
+        self.assertEqual(html_node.tag, "i")
+        self.assertEqual(html_node.value, "this is italic text")
+        self.assertEqual(html_node.children, None)
+        self.assertEqual(html_node.props, None)
 
 if __name__ == "__main__":
     unittest.main()
