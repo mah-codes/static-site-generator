@@ -1,6 +1,6 @@
 import unittest
 
-from processing import split_nodes_delimiter
+from processing import split_nodes_delimiter, extract_markdown_images, extract_markdown_links
 from textnode import TextType, TextNode
 
 class TestSplitNodesDelimiter(unittest.TestCase):
@@ -41,4 +41,35 @@ class TestSplitNodesDelimiter(unittest.TestCase):
             ],
             new_nodes,
         )
+class TestExtractMarkdownImages(unittest.TestCase):
+    def test_extract_markdown_images_basic(self):
+        input_string = "This is text with a ![rick roll](https://i.imgur.com/aKaOqIh.gif) and ![obi wan](https://i.imgur.com/fJRm4Vk.jpeg)"
+        extracted = extract_markdown_images(input_string)
+        expected = [
+            ("rick roll", "https://i.imgur.com/aKaOqIh.gif"),
+            ("obi wan", "https://i.imgur.com/fJRm4Vk.jpeg")
+        ]
+        self.assertListEqual(extracted, expected)
+    
 
+    def test_extract_markdown_images_with_link(self):
+        input_string = "This is text with a link [to boot dev](https://www.boot.dev) and [to youtube](https://www.youtube.com/@bootdotdev)"
+        extracted = extract_markdown_images(input_string)
+        expected = []
+        self.assertListEqual(extracted, expected)
+
+    def test_extract_markdown_link_basic(self):
+        input_string = "This is text with a link [to boot dev](https://www.boot.dev) and [to youtube](https://www.youtube.com/@bootdotdev)"
+        extracted = extract_markdown_links(input_string)
+        expected =  [
+            ("to boot dev", "https://www.boot.dev"),
+            ("to youtube", "https://www.youtube.com/@bootdotdev")
+        ]
+        self.assertListEqual(extracted, expected)
+    
+    # From Lane
+    def test_extract_markdown_images(self):
+        matches = extract_markdown_images(
+            "This is text with an ![image](https://i.imgur.com/zjjcJKZ.png)"
+        )
+        self.assertListEqual([("image", "https://i.imgur.com/zjjcJKZ.png")], matches)
