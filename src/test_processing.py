@@ -91,3 +91,19 @@ class TestExtractMarkdownImages(unittest.TestCase):
             ],
             new_nodes,
         )
+    def test_split_images_and_links(self):
+        node = TextNode(
+            "This is a text with an ![image](https://i.imgur.com/zjjcJKZ.png) and a [text link!](https://www.boot.dev)",
+            TextType.TEXT
+        )
+        new_nodes = split_nodes_link([node])
+        new_nodes = split_nodes_image(new_nodes)
+        self.assertListEqual(
+            [
+                TextNode("This is a text with an ", TextType.TEXT),
+                TextNode("image", TextType.IMAGE, "https://i.imgur.com/zjjcJKZ.png"),
+                TextNode(" and a ", TextType.TEXT),
+                TextNode("text link!", TextType.LINK, "https://www.boot.dev"),
+            ],
+            new_nodes,
+       )

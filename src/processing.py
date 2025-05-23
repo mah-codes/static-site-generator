@@ -44,7 +44,7 @@ def split_nodes_link(node_list):
         while i < len(split_nodes):
             if link_tuples != [] and split_nodes[i] == link_tuples[0][0]:
                 link_text, link_url = link_tuples.pop(0)
-                new_nodes.append(TextNode(link_text, TextType.link, link_url))
+                new_nodes.append(TextNode(link_text, TextType.LINK, link_url))
                 i += 2 # because anchor text AND link are 2 elements split_nodes
             elif split_nodes[i] == "":
                 i += 1
@@ -74,3 +74,14 @@ def split_nodes_image(node_list):
                 new_nodes.append(TextNode(split_nodes[i], TextType.TEXT))
                 i += 1
     return new_nodes
+
+# def text_to_textnodes(text):
+#     text_delimiters = {
+#         "**": TextType.BOLD,
+#         "_": TextType.ITALIC,
+#         "`": TextType.CODE,
+#     }
+#     # remove links and images
+    
+#     for char in text:
+#         if char in text_delimiters
