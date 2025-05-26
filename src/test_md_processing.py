@@ -26,22 +26,22 @@ This is the same paragraph on a new line
     def test_markdown_block_to_blocktype_heading(self):
         md = "# This is a heading"
         block_type = markdown_block_to_blocktype(md)
-        self.assertEqual(block_type, BlockType.heading)
+        self.assertEqual(block_type, BlockType.HEADING)
 
     def test_markdown_block_to_blocktype_paragraph(self):
         md = "This is a paragraph"
         block_type = markdown_block_to_blocktype(md)
-        self.assertEqual(block_type, BlockType.paragraph)
+        self.assertEqual(block_type, BlockType.PARAGRAPH)
 
     def test_markdown_block_to_blocktype_ordered_list(self):
         md = "1. This is a list item\n2. This is another list item"
         block_type = markdown_block_to_blocktype(md)
-        self.assertEqual(block_type, BlockType.ordered_list)
+        self.assertEqual(block_type, BlockType.ORDERED_LIST)
 
     def test_markdown_block_to_blocktype_ordered_list_invalid(self):
         md = "1. This is a list item\n2. This is another list item\n2. This is a third list item"
         block_type = markdown_block_to_blocktype(md)
-        self.assertEqual(block_type, BlockType.paragraph)
+        self.assertEqual(block_type, BlockType.PARAGRAPH)
 
     def test_markdown_block_to_blocktype_mixed(self):
         md = """
