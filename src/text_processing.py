@@ -1,6 +1,10 @@
 import re
 from textnode import TextType, TextNode
 
+def markdown_to_blocks(markdown):
+    return [block.strip() for block in markdown.split("\n\n")]
+
+
 def split_nodes_delimiter(old_nodes, delimiter, text_type):
     """Splits TextNode into list of TextNodes by MD delimiter"""
     new_nodes = []
