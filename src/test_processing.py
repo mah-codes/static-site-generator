@@ -107,3 +107,54 @@ class TestExtractMarkdownImages(unittest.TestCase):
             ],
             new_nodes,
        )
+
+class TestSplitAllNodes(unittest.TestCase):
+    def test_text_to_textnodes_base(self):
+        sample = "This is **text** with an _italic_ word and a `code block` and an ![obi wan image](https://i.imgur.com/fJRm4Vk.jpeg) and a [link](https://boot.dev)"
+        expected = [
+            TextNode("This is ", TextType.TEXT),
+            TextNode("text", TextType.BOLD),
+            TextNode(" with an ", TextType.TEXT),
+            TextNode("italic", TextType.ITALIC),
+            TextNode(" word and a ", TextType.TEXT),
+            TextNode("code block", TextType.CODE),
+            TextNode(" and an ", TextType.TEXT),
+            TextNode("obi wan image", TextType.IMAGE, "https://i.imgur.com/fJRm4Vk.jpeg"),
+            TextNode(" and a ", TextType.TEXT),
+            TextNode("link", TextType.LINK, "https://boot.dev"),
+        ]
+        result_nodes = text_to_textnodes(sample)
+        self.assertListEqual(
+            expected,
+            result_nodes
+        )
+    
+    def test_text_to_textnodes_start_nontext(self):
+        sample = "**This sentence** starts in **bold** but ends in text."
+        expected = [
+            TextNode("This sentence", TextType.BOLD),
+            TextNode(" starts in ", TextType.TEXT),
+            TextNode("bold", TextType.BOLD),
+            TextNode(" but ends in text.", TextType.TEXT),
+        ]
+        result_nodes = text_to_textnodes(sample)
+        self.assertListEqual(expected, result_nodes)
+    
+    def test_text_to_textnodes_end_nontext(self):
+        sample = "This sentence starts in text but ends in **bold**."
+        expected = [
+            TextNode("This sentence starts in text but ends in ", TextType.TEXT),
+            TextNode("bold", TextType.BOLD),
+            TextNode(".", TextType.TEXT),
+        ]
+        result_nodes = text_to_textnodes(sample)
+        self.assertListEqual(expected, result_nodes)
+
+    def test_text_to_textnodes_start_link(self):
+        sample = "[This sentence](https://www.boot.dev) starts with a link, ends with text."
+        expected = [
+            TextNode("This sentence", TextType.LINK, "https://www.boot.dev"),
+            TextNode(" starts with a link, ends with text.", TextType.TEXT),
+        ]
+        result_nodes = text_to_textnodes(sample)
+        self.assertListEqual(expected, result_nodes)

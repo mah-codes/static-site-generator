@@ -75,13 +75,16 @@ def split_nodes_image(node_list):
                 i += 1
     return new_nodes
 
-# def text_to_textnodes(text):
-#     text_delimiters = {
-#         "**": TextType.BOLD,
-#         "_": TextType.ITALIC,
-#         "`": TextType.CODE,
-#     }
-#     # remove links and images
-    
-#     for char in text:
-#         if char in text_delimiters
+def text_to_textnodes(text):
+    text_delimiters = {
+        "**": TextType.BOLD,
+        "_": TextType.ITALIC,
+        "`": TextType.CODE,
+    }
+    text_node = TextNode(text, TextType.TEXT)
+    # remove links and images
+    clean_nodes = split_nodes_link([text_node])
+    clean_nodes = split_nodes_image(clean_nodes)
+    for delim in text_delimiters:
+        clean_nodes = split_nodes_delimiter(clean_nodes, delim, text_delimiters[delim])
+    return clean_nodes
