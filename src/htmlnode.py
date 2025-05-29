@@ -46,7 +46,7 @@ class ParentNode(HTMLNode):
         if self.tag == None:
             raise ValueError("Parent Node needs a tag")
         if self.children == None or self.children == []:
-            raise ValueError("Parent Tag requires children")
+            raise ValueError(f"Parent Tag {self.tag} requires children")
         props_html = self.props_to_html()
         
         nested_children = any(list(map(lambda item: isinstance(item, list), self.children)))
