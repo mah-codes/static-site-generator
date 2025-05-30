@@ -47,46 +47,64 @@ def markdown_to_html_node(markdown):
     # For loop will only convert block-to-block, not fixed for nesting
     for block in md_blocks:
         block_type = markdown_block_to_blocktype(block)
-        lines = block.split("\n")
         match block_type:
             case BlockType.HEADING:
-                for line in lines:
-                    h_regex = r"^#{1,6}"
-                    h_level = len(re.match(h_regex, line).group())
-                    h_tag = f"h{h_level}"
-                    children = text_to_html_node_children(line[h_level + 1:])
-                    html_nodes.append(ParentNode(h_tag, children))
+                html_nodes.append(md_block_to_heading_html_node(block))
             case BlockType.PARAGRAPH:
-                paragraph = " ".join(lines)
-                children = text_to_html_node_children(paragraph)
-                html_nodes.append(ParentNode("p", children))
+                html_nodes.append(md_block_to_paragraph_html_node(block))
             case BlockType.ORDERED_LIST:
-                li_nodes = [] # li = list item from HTML's <li>
-                for line in lines:
-                    # ex: 2. Second item of list
-                    ol_regex = r"^\d+.\s"
-                    ol_num_len = len(re.match(ol_regex, line).group())
-                    # take after "1. " or "13. " dynamically
-                    children = text_to_html_node_children(line[ol_num_len:])
-                    # should have received [LeafNode()] of this line
-                    li_nodes.append(ParentNode("li", children))
-                html_nodes.append(ParentNode("ol", li_nodes))
+                html_nodes.append(md_block_to_ordered_list_html_node(block))
             case BlockType.UNORDERED_LIST:
-                li_nodes = []
-                for line in lines:
-                    children = text_to_html_node_children(line[2:])
-                    li_nodes.append(ParentNode("li", children))
-                html_nodes.append(ParentNode("ul", li_nodes))
+                html_nodes.append(md_block_to_unordered_list_html_node(block))
             case BlockType.CODE_BLOCK:
-                # Remove the ``` markers and join the content
-                content = "\n".join(lines[1:-1])
-                inner_code = LeafNode("code", content)
-                html_nodes.append(ParentNode("pre", [inner_code]))
+                html_nodes.append(md_block_to_code_block_html_node(block))
             case BlockType.QUOTE:
                 html_nodes.append(HTMLNode(tag="blockquote", value=block))
             case _:
                 raise ValueError(f"Invalid block type: {block_type}")
     return ParentNode("div", html_nodes)
+
+def md_block_to_ordered_list_html_node(markdown_block):
+    lines = markdown_block.split("\n")
+    li_nodes = [] # li = list item from HTML's <li>
+    for line in lines:
+        # ex: 2. Second item of list
+        ol_regex = r"^\d+.\s"
+        ol_num_len = len(re.match(ol_regex, line).group())
+        # take after "1. " or "13. " dynamically
+        children = text_to_html_node_children(line[ol_num_len:])
+        # should have received [LeafNode()] of this line
+        li_nodes.append(ParentNode("li", children))
+    return ParentNode("ol", li_nodes)
+
+def md_block_to_unordered_list_html_node(markdown_block):
+    lines = markdown_block.split("\n")
+    li_nodes = []
+    for line in lines:
+        children = text_to_html_node_children(line[2:])
+        li_nodes.append(ParentNode("li", children))
+    return ParentNode("ul", li_nodes)
+
+def md_block_to_paragraph_html_node(markdown_block):
+    lines = markdown_block.split("\n")
+    paragraph = " ".join(lines)
+    children = text_to_html_node_children(paragraph)
+    return ParentNode("p", children)
+
+def md_block_to_heading_html_node(markdown_block):
+    lines = markdown_block.split("\n")
+    for line in lines:
+        h_regex = r"^#{1,6}"
+        h_level = len(re.match(h_regex, line).group())
+        h_tag = f"h{h_level}"
+        children = text_to_html_node_children(line[h_level + 1:])
+        return ParentNode(h_tag, children)
+
+def md_block_to_code_block_html_node(markdown_block):
+    # Remove the ``` markers and join the content
+    lines = markdown_block.split("\n")
+    content = "\n".join(lines[1:-1])
+    return ParentNode("pre",[LeafNode("code", content)])
 
 def text_to_html_node_children(text):
     """Takes raw one-line text, transforms to text nodes then to list of HTML nodes"""
