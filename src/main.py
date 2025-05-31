@@ -1,8 +1,4 @@
-from textnode import TextType, TextNode
-from htmlnode import LeafNode, ParentNode
-
+import copy_static
 def main():
-    some_node = TextNode("Some anchor text", TextType.LINK, "www.google.com")
-    print(some_node)
-
+    copy_static.public_generator()
 main()
