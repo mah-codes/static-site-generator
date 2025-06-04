@@ -24,12 +24,11 @@ def markdown_block_to_blocktype(md_block):
         return BlockType.HEADING
     elif lines[0].startswith("```") and lines[-1].startswith("```"):
         return BlockType.CODE_BLOCK
-    elif re.match(r"^>\s\w+", md_block):
+    elif re.match(r"^>", md_block):
         # Making more robust (after submission)
         for line in lines:
             if line.startswith(">"):
                 return BlockType.QUOTE
-        return BlockType.PARAGRAPH
     elif re.match(r"^-+\s\w+", md_block):
         for line in lines:
             if line.startswith("- "):
@@ -42,6 +41,7 @@ def markdown_block_to_blocktype(md_block):
     return BlockType.PARAGRAPH
 
 def markdown_to_html_node(markdown):
+    """Convert multi-line Markdown string to a multi-line HTML Node"""
     md_blocks = markdown_to_blocks(markdown)
     html_nodes = []
     # For loop will only convert block-to-block, not fixed for nesting
@@ -59,7 +59,8 @@ def markdown_to_html_node(markdown):
             case BlockType.CODE_BLOCK:
                 html_nodes.append(md_block_to_code_block_html_node(block))
             case BlockType.QUOTE:
-                html_nodes.append(HTMLNode(tag="blockquote", value=block))
+                html_nodes.append(md_block_to_quote_block_html_node(block))
+                # html_nodes.append(HTMLNode(tag="blockquote", value=block))
             case _:
                 raise ValueError(f"Invalid block type: {block_type}")
     return ParentNode("div", html_nodes)
@@ -105,6 +106,14 @@ def md_block_to_code_block_html_node(markdown_block):
     lines = markdown_block.split("\n")
     content = "\n".join(lines[1:-1])
     return ParentNode("pre",[LeafNode("code", content)])
+
+def md_block_to_quote_block_html_node(markdown_block):
+    lines = markdown_block.split("\n")
+    block_quote_children = []
+    for line in lines:
+        list_of_leaf_html_nodes = text_to_html_node_children(line[2:])
+        block_quote_children.extend(list_of_leaf_html_nodes)
+    return ParentNode("blockquote", block_quote_children)
 
 def text_to_html_node_children(text):
     """Takes raw one-line text, transforms to text nodes then to list of HTML nodes"""
