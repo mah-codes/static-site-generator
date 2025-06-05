@@ -10,13 +10,13 @@ from md_processing import markdown_to_html_node
 # Delete the public tree
 # then from static, recreate the public tree
 
-def clone_filestructure(from_path, to_path):
+def clone_filestructure(from_path, to_path, basepath):
     # Delete public/
     if os.path.exists(to_path):
         shutil.rmtree(to_path)
     os.mkdir(to_path)
     # Generate from static/
-    file_paths = build_html_from_md(from_path, "", to_path)
+    file_paths = build_html_from_md(from_path, "", to_path, basepath)
     print("files successfully copied to", to_path)
 
 def create_public_files(from_path, to_path):
@@ -37,7 +37,7 @@ def create_public_files(from_path, to_path):
             filepaths.extend(create_public_files(full_fp))
     return filepaths
 
-def build_html_from_md(origin_fp, template_path, dest_fp):
+def build_html_from_md(origin_fp, template_path, dest_fp, basepath):
     filepaths = []
     dirs = os.scandir(origin_fp)
     for item in dirs:
@@ -49,7 +49,7 @@ def build_html_from_md(origin_fp, template_path, dest_fp):
             # if Markdown file, need static version to be HTML based on template
             if re.search(r"\w+\.(md)", item.name) is not None: 
                 # print("Generating HTML", item.path)
-                generate_page(item.path, template_path, next_dest_fp)
+                generate_page(item.path, template_path, next_dest_fp, basepath)
             # If it's some other content (just needing a cp command)
             else: 
                 shutil.copy(item.path, next_dest_fp)
@@ -59,7 +59,8 @@ def build_html_from_md(origin_fp, template_path, dest_fp):
             filepaths.extend(build_html_from_md(
                 item.path,
                 template_path,
-                next_dest_fp
+                next_dest_fp,
+                basepath
             ))
     return filepaths
 
@@ -71,7 +72,7 @@ def extract_title(markdown_file):
             return line.strip()[1:].strip()
     raise Exception("No title found in markdown file")
     
-def generate_page(from_path, template_path, dest_path):
+def generate_page(from_path, template_path, dest_path, basepath):
     print(f"Generating page from {from_path} to {dest_path}")
     print(f"Generated with template {template_path}")
     with open(from_path, 'r') as content_file:
@@ -86,6 +87,9 @@ def generate_page(from_path, template_path, dest_path):
     title = extract_title(from_path)
     page = template.replace("{{ Content }}", content_html_string)
     page = page.replace("{{ Title }}", title)
+    page = page.replace('href="/', f'href="{basepath}')
+    page = page.replace('src="/', f'src="{basepath}')
+
 
     prep_filepath(dest_path)
     # Change extension from .md to .html
