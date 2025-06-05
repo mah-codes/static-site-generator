@@ -31,14 +31,6 @@ def create_public_files(fp):
             filepaths.extend(create_public_files(full_fp))
     return filepaths
 
-def extract_title(markdown_file):
-    with open(markdown_file, "r") as file:
-        markdown = file.read()
-    for line in markdown.split("\n"):
-        if line.strip().startswith("#"):
-            return line.strip()[1:].strip()
-    raise Exception("No title found in markdown file")
-    
 def generate_page(from_path, template_path, dest_path):
     print(f"Generating page from {from_path} to {dest_path}")
     print(f"Generated with template {template_path}")
@@ -59,7 +51,14 @@ def generate_page(from_path, template_path, dest_path):
     with open(dest_path, 'w') as dest_file:
         dest_file.write(page)
 
-
+def extract_title(markdown_file):
+    with open(markdown_file, "r") as file:
+        markdown = file.read()
+    for line in markdown.split("\n"):
+        if line.strip().startswith("#"):
+            return line.strip()[1:].strip()
+    raise Exception("No title found in markdown file")
+    
 
 def prep_filepath(tgt_path):
     """Takes an absolute path, creating directories as needed"""

@@ -1,4 +1,4 @@
-import generate_files
+import file_generator
 import os
 
 def main():
@@ -8,15 +8,23 @@ def main():
     project_root = os.path.dirname(main_py_dir)
     
     # Build absolute paths from project root
-    content_path = os.path.join(project_root, 'content', 'index.md')
+    content_path = os.path.join(project_root, 'content')
+    public_path = os.path.join(project_root, 'public')
     template_path = os.path.join(project_root, 'template.html')
-    output_path = os.path.join(project_root, 'public', 'index.html')
-    
-    generate_files.public_generator()
-    generate_files.generate_page(
-        content_path,
-        template_path,
-        output_path
+    static_path = os.path.join(project_root, 'static')
+
+    # Recursively generate md files into html using template into public
+    file_generator.build_html_from_md(
+        origin_fp=content_path,
+        template_path=template_path,
+        dest_fp=static_path
     )
+
+    # Delete public tree, recreating it with items from static
+    file_generator.clone_filestructure(
+        from_path=static_path,
+        to_path=public_path
+    )
+        
 
 main()
