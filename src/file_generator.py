@@ -19,24 +19,6 @@ def clone_filestructure(from_path, to_path, basepath):
     file_paths = build_html_from_md(from_path, "", to_path, basepath)
     print("files successfully copied to", to_path)
 
-def create_public_files(from_path, to_path):
-    filepaths = []
-    dirs = os.scandir(from_path)
-    for item in dirs:
-        full_fp = item.path
-        if not item.is_dir():
-            # based on static path, create a directory string for static
-            static_dir_path = item.path[:-len(item.name)]
-            public_dir_path = static_dir_path.replace("/static/", "/public/")
-            # Check if path/dir exists in public
-            if not os.path.exists(public_dir_path):
-                os.mkdir(public_dir_path)
-            shutil.copy(item.path, f"{public_dir_path}/{item.name}")
-            filepaths.append(full_fp)
-        else:
-            filepaths.extend(create_public_files(full_fp))
-    return filepaths
-
 def build_html_from_md(origin_fp, template_path, dest_fp, basepath):
     filepaths = []
     dirs = os.scandir(origin_fp)
@@ -90,6 +72,7 @@ def generate_page(from_path, template_path, dest_path, basepath):
     page = page.replace('href="/', f'href="{basepath}')
     page = page.replace('src="/', f'src="{basepath}')
 
+    print(f"!!\n{basepath}\n!!")
 
     prep_filepath(dest_path)
     # Change extension from .md to .html
@@ -105,6 +88,6 @@ def prep_filepath(tgt_path):
     # Create directories if they don't exist
     if not os.path.exists(dir_path):
         os.makedirs(dir_path, exist_ok=True)
-        print(f"\nCreated directory: {dir_path}")
-    else:
-        print(f"\nDirectory exists: {dir_path}")
+        # print(f"\nCreated directory: {dir_path}")
+    # else:
+        # print(f"\nDirectory exists: {dir_path}")
